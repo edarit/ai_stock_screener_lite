@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Stock Screener Lite</title>
+
+    <!-- stlite official browser build -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.css"
+    />
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@stlite/browser@0.85.1/build/stlite.js"
+    ></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0f1117;
+        color: #ffffff;
+      }
+
+      .topbar {
+        padding: 14px 20px;
+        border-bottom: 1px solid #2a2f3a;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .brand {
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      .cta a {
+        color: #fff;
+        text-decoration: none;
+        padding: 10px 14px;
+        border: 1px solid #4a5568;
+        border-radius: 8px;
+      }
+
+      .note {
+        padding: 12px 20px;
+        font-size: 14px;
+        color: #cbd5e1;
+        border-bottom: 1px solid #2a2f3a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="brand">AI Stock Screener Lite</div>
+      <div class="cta">
+        <a href="https://edarit.com" target="_blank" rel="noopener noreferrer">
+          Unlock Pro
+        </a>
+      </div>
+    </div>
+
+    <div class="note">
+      Lite version running fully in-browser. Best for demo, lead capture, and portfolio use.
+    </div>
+
+    <streamlit-app>
+import streamlit as st
+import math
+
+st.set_page_config(page_title="AI Stock Screener Lite", layout="wide")
+
+# --- fake demo dataset (replace later with your own simplified logic) ---
+stocks = [
+    {"ticker": "NVDA", "sector": "Technology", "return": 28.4, "volatility": 32.1},
+    {"ticker": "MSFT", "sector": "Technology", "return": 18.7, "volatility": 18.2},
+    {"ticker": "XOM",  "sector": "Energy",     "return": 12.4, "volatility": 20.5},
+    {"ticker": "JPM",  "sector": "Financials", "return": 10.9, "volatility": 16.9},
+    {"ticker": "PFE",  "sector": "Healthcare", "return":  6.4, "volatility": 11.8},
+    {"ticker": "TSM",  "sector": "Technology", "return": 21.3, "volatility": 24.7},
+]
+
+st.title("📈 AI Stock Screener Lite")
+st.caption("Fast browser demo version")
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    sector_filter = st.selectbox(
+        "Sector",
+        ["All", "Technology", "Energy", "Financials", "Healthcare"]
+    )
+with col2:
+    min_return = st.slider("Minimum Return (%)", 0.0, 30.0, 8.0, 0.5)
+with col3:
+    max_vol = st.slider("Maximum Volatility", 5.0, 40.0, 25.0, 0.5)
+
+filtered = []
+for s in stocks:
+    if sector_filter != "All" and s["sector"] != sector_filter:
+        continue
+    if s["return"] < min_return:
+        continue
+    if s["volatility"] > max_vol:
+        continue
+    score = round((s["return"] * 2) - (s["volatility"] * 0.8), 2)
+    filtered.append({
+        "Ticker": s["ticker"],
+        "Sector": s["sector"],
+        "Return %": s["return"],
+        "Volatility": s["volatility"],
+        "Lite Score": score,
+    })
+
+filtered = sorted(filtered, key=lambda x: x["Lite Score"], reverse=True)
+
+st.subheader("Top Candidates")
+if filtered:
+    st.dataframe(filtered, use_container_width=True)
+else:
+    st.warning("No stocks match the current filters.")
+
+st.subheader("Quick Insight")
+if filtered:
+    best = filtered[0]
+    st.success(
+        f"{best['Ticker']} currently ranks highest in this Lite model "
+        f"with a score of {best['Lite Score']}."
+    )
+    st.write(
+        "This Lite version is intentionally simplified. "
+        "The Pro version can include deeper factor scoring, export, and narrative report."
+    )
+else:
+    st.info("Try lowering the minimum return or increasing the volatility threshold.")
+
+st.divider()
+st.markdown("### Upgrade")
+st.markdown(
+    """
+**Want the Pro version?**  
+- Full scoring model  
+- Better ranking logic  
+- Exportable report  
+- Premium portfolio insight  
+
+[Get Pro on edarit.com](https://edarit.com)
+"""
+)
+    </streamlit-app>
+  </body>
+</html>
